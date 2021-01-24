@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import copy
 import os
 import tcod
@@ -21,6 +23,7 @@ def main():
     max_rooms = 30
 
     max_monsters_per_room = 2
+    max_items_per_room = 2
     
     tileset = tcod.tileset.load_tilesheet(
         os.path.join(os.path.dirname(__file__),
@@ -42,6 +45,7 @@ def main():
         room_max_size=room_max_size,
         map_width=map_width, map_height=map_height,
         max_monsters_per_room=max_monsters_per_room,
+        max_items_per_room=max_items_per_room,
         engine=engine
     )
 
@@ -65,7 +69,15 @@ def main():
             engine.event_handler.on_render(console=root_console)
             context.present(root_console)
  
-            engine.event_handler.handle_events(context)
+            try:
+                for event in tcod.event.wait():
+                    context.convert_event(event)
+                    engine.event_handler.handle_events(event)
+            except Exception:  # Handle exceptions in game.
+                traceback.print_exc()  # Print error to stderr.
+                # Then print the error to the message log.
+                engine.message_log.add_message(traceback.format_exc(),
+                                               colour.error)
                 
 
 if __name__ == "__main__":

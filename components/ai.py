@@ -4,14 +4,13 @@ import tcod
 from typing import List, Tuple, TYPE_CHECKING
 
 from actions import Action, MeleeAction, MovementAction, WaitAction
-from components.base_component import BaseComponent
 from tile_types import TA_WALKABLE
 
 if TYPE_CHECKING:
     from entity import Actor
 
 
-class BaseAI(Action, BaseComponent):
+class BaseAI(Action):
     entity: Actor
     
     def perform(self) -> None:
