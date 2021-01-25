@@ -1,5 +1,6 @@
 from __future__ import annotations
 import copy
+import math
 from typing import Optional, Tuple, Type, TypeVar, Union, TYPE_CHECKING
 
 import colour
@@ -43,17 +44,22 @@ class Entity:
     def gamemap(self) -> GameMap:
         return self.parent.gamemap
 
-    def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
-        """Spawn a copy of this instance at the given location."""
-        clone = copy.deepcopy(self)
-        clone.x = x
-        clone.y = y
-        clone.parent = gamemap
-        gamemap.entities.add(clone)
-        return clone
+    def distance(self, x: int, y: int) -> float:
+        """
+        Return the distance between the current entity and the given (x, y)
+        coordinate.
+        """
+        return math.sqrt((x - self.x) ** 2 + (y - self.y) ** 2)
+
+    def move(self, dx: int, dy: int) -> None:
+        # Move the entity by a given amount
+        self.x += dx
+        self.y += dy
 
     def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
-        """Place this entity at a new location.  Handles moving across GameMaps."""
+        """
+        Place this entity at a new location.  Handles moving across GameMaps.
+        """
         self.x = x
         self.y = y
         if gamemap:
@@ -63,10 +69,14 @@ class Entity:
             self.parent = gamemap
             gamemap.entities.add(self)
 
-    def move(self, dx: int, dy: int) -> None:
-        # Move the entity by a given amount
-        self.x += dx
-        self.y += dy
+    def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
+        """Spawn a copy of this instance at the given location."""
+        clone = copy.deepcopy(self)
+        clone.x = x
+        clone.y = y
+        clone.parent = gamemap
+        gamemap.entities.add(clone)
+        return clone
 
 
 class Actor(Entity):
