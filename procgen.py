@@ -19,11 +19,11 @@ class RectangularRoom:
         self.y2 = y + height
     
     @property
-    def center(self) -> Tuple[int, int]:
-        center_x = int((self.x1 + self.x2) / 2)
-        center_y = int((self.y1 + self.y2) / 2)
+    def centre(self) -> Tuple[int, int]:
+        centre_x = int((self.x1 + self.x2) / 2)
+        centre_y = int((self.y1 + self.y2) / 2)
 
-        return center_x, center_y
+        return centre_x, centre_y
     
     @property
     def inner(self) -> Tuple[slice, slice]:
@@ -100,6 +100,8 @@ def generate_dungeon(max_rooms: int, room_min_size: int, room_max_size: int,
 
     rooms: List[RectangularRoom] = []
 
+    centre_of_last_room = (0, 0)
+
     for r in range(max_rooms):
         room_width = random.randint(room_min_size, room_max_size)
         room_height = random.randint(room_min_size, room_max_size)
@@ -120,16 +122,21 @@ def generate_dungeon(max_rooms: int, room_min_size: int, room_max_size: int,
 
         if len(rooms) == 0:
             # The first room, where the player starts.
-            player.place(*new_room.center, dungeon)
+            player.place(*new_room.centre, dungeon)
         else:  # All rooms after the first.
             # Dig out a tunnel between this room and the previous one.
-            for x, y in tunnel_between(rooms[-1].center, new_room.center):
+            for x, y in tunnel_between(rooms[-1].centre, new_room.centre):
                 dungeon.tiles[x, y] = tile_types.floor
+
+            centre_of_last_room = new_room.centre
 
         place_entities(new_room, dungeon, max_monsters_per_room,
                        max_items_per_room
         )
         
+        dungeon.tiles[centre_of_last_room] = tile_types.down_stairs
+        dungeon.downstairs_location = centre_of_last_room
+
         # Finally, append the new room to the list.
         rooms.append(new_room)
 

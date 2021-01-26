@@ -1,6 +1,8 @@
 import numpy as np  # type: ignore
 from typing import Tuple
 
+import colour
+
 
 # Tile graphics structured type compatible with Console.tiles_rgb.
 graphic_dt = np.dtype(
@@ -11,11 +13,13 @@ graphic_dt = np.dtype(
     ]
 )
 
+
 #Tile attributes
 TA_DARK        = "dark"
 TA_LIGHT       = "light"
 TA_TRANSPARENT = "transparent"
 TA_WALKABLE    = "walkable"
+
 
 # Tile struct used for statically defined tile data.
 tile_dt = np.dtype(
@@ -40,18 +44,26 @@ def new_tile(
 
 
 # SHROUD represents unexplored, unseen tiles
-SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0)), dtype=graphic_dt)
+SHROUD = np.array((ord(" "), colour.white, colour.black), dtype=graphic_dt)
 
 
 floor = new_tile(
     walkable=True,
     transparent=True,
-    dark=(ord(" "), (255, 255, 255), (50, 50, 150)),
-    light=(ord(" "), (255, 255, 255), (200, 180, 50)),
+    dark=(ord(" "), colour.white, colour.tile_dark_floor_bg),
+    light=(ord(" "), colour.white, colour.tile_light_floor_bg),
+)
+down_stairs = new_tile(
+    walkable=True,
+    transparent=True,
+    dark=(ord(">"), colour.tile_dark_down_stairs_fg,
+          colour.tile_dark_floor_bg
+    ),
+    light=(ord(">"), colour.white, colour.tile_light_floor_bg),
 )
 wall = new_tile(
     walkable=False,
     transparent=False,
-    dark=(ord(" "), (255, 255, 255), (0, 0, 100)),
-    light=(ord(" "), (255, 255, 255), (130, 110, 50)),
+    dark=(ord(" "), colour.white, colour.tile_dark_wall_bg),
+    light=(ord(" "), colour.white, colour.tile_light_wall_bg),
 )
