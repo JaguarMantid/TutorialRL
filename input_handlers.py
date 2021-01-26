@@ -288,7 +288,17 @@ class InventoryEventHandler(AskUserEventHandler):
         if number_of_items_in_inventory > 0:
             for i, item in enumerate(self.engine.player.inventory.items):
                 item_key = chr(ord("a") + i)
-                console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+
+                is_equipped = self.engine.player.equipment.item_is_equipped(
+                    item
+                )
+
+                item_string = f"({item_key}) {item.name}"
+
+                if is_equipped:
+                    item_string = f"{item_string} (E)"
+
+                console.print(x + 1, y + i + 1, item_string)
         else:
             console.print(x + 1, y + 1, "(Empty)")
 
@@ -311,6 +321,30 @@ class InventoryEventHandler(AskUserEventHandler):
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
         raise NotImplementedError()
+
+
+class InventoryActivateHandler(InventoryEventHandler):
+    """Handle using an inventory item."""
+
+    TITLE = "Select an item to use"
+
+    def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
+        if item.consumable:
+            # Return the action for the selected item.
+            return item.consumable.get_action(self.engine.player)
+        elif item.equippable:
+            return actions.EquipAction(self.engine.player, item)
+        else:
+            return None
+
+class InventoryDropHandler(InventoryEventHandler):
+    """Handle dropping an inventory item."""
+
+    TITLE = "Select an item to drop"
+
+    def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
+        """Drop this item."""
+        return actions.DropItem(self.engine.player, item)
 
 
 class LevelUpEventHandler(AskUserEventHandler):
@@ -367,26 +401,6 @@ class LevelUpEventHandler(AskUserEventHandler):
         Don't allow the player to click to exit the menu, like normal.
         """
         return None
-
-
-class InventoryActivateHandler(InventoryEventHandler):
-    """Handle using an inventory item."""
-
-    TITLE = "Select an item to use"
-
-    def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
-        """Return the action for the selected item."""
-        return item.consumable.get_action(self.engine.player)
-
-
-class InventoryDropHandler(InventoryEventHandler):
-    """Handle dropping an inventory item."""
-
-    TITLE = "Select an item to drop"
-
-    def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
-        """Drop this item."""
-        return actions.DropItem(self.engine.player, item)
 
 
 class MainGameEventHandler(EventHandler):

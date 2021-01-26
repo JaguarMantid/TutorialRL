@@ -57,6 +57,19 @@ def new_game() -> Engine:
     engine.message_log.add_message(
         "Hello and welcome, adventurer, to yet another dungeon!", colour.welcome_text
     )
+
+    dagger = copy.deepcopy(entity_factories.dagger)
+    leather_armour = copy.deepcopy(entity_factories.leather_armour)
+
+    dagger.parent = player.inventory
+    leather_armour.parent = player.inventory
+
+    player.inventory.items.append(dagger)
+    player.equipment.toggle_equip(dagger, add_message=False)
+
+    player.inventory.items.append(leather_armour)
+    player.equipment.toggle_equip(leather_armour, add_message=False)
+
     return engine
 
 class MainMenu(input_handlers.BaseEventHandler):
